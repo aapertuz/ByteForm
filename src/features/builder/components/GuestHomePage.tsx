@@ -3,14 +3,12 @@ import Link from "next/link";
 import { Geist } from "next/font/google";
 import {
   ArrowRight,
-  AudioLines,
   Check,
   Layers2,
-  MessageCircle,
-  MoveUpRight,
 } from "lucide-react";
 import type { PostMeta } from "@/lib/blog";
 import { FormExperienceDemo } from "./landing/FormExperienceDemo";
+import { CreationPrompt } from "./landing/CreationPrompt";
 import { LandingMotion } from "./landing/LandingMotion";
 import styles from "./landing/landing.module.css";
 
@@ -45,7 +43,6 @@ export function GuestHomePage({ posts }: { posts: PostMeta[] }) {
       <header className={styles.header}>
         <Brand />
         <nav className={styles.nav} aria-label="Main navigation">
-          <a href="#experiences">The experience</a>
           <a href="#how-it-works">How it works</a>
           <Link href="/blog">Journal</Link>
         </nav>
@@ -65,10 +62,11 @@ export function GuestHomePage({ posts }: { posts: PostMeta[] }) {
               More <span>human.</span>
             </h1>
             <p className={styles.heroDescription}>
-              Great answers start with a real connection. Create forms people
-              can fill in, chat with, or talk to.
+              Know your customers with real conversations.
+              <br />
+              Create forms people can fill in, chat with, or talk to.
             </p>
-            <StartLink light />
+            <CreationPrompt />
             <p className={styles.heroNote}>
               Build your first form. No sign-up needed.
             </p>
@@ -100,85 +98,6 @@ export function GuestHomePage({ posts }: { posts: PostMeta[] }) {
             </span>
           </div>
           <small>Placeholder companies. Your customers belong here.</small>
-        </section>
-
-        <section
-          id="experiences"
-          className={styles.experiences}
-          aria-labelledby="experience-title"
-        >
-          <div className={styles.sectionIntro} data-reveal>
-            <h2 id="experience-title">
-              People have a lot to say.
-              <br />
-              Give them a way.
-            </h2>
-            <p>
-              From a quick check-in to the full story, make room for the way
-              people naturally respond.
-            </p>
-          </div>
-          <div className={styles.featureLayout} data-reveal>
-            <div className={styles.photoPanel}>
-              <Image
-                src="/images/landing-landscape.jpg"
-                alt="A quiet lake reflecting mountains in the evening light"
-                fill
-                sizes="(max-width: 760px) 100vw, 50vw"
-                className={styles.landscape}
-              />
-              <div className={styles.photoCaption}>
-                <span>
-                  Make a little space
-                  <br />
-                  for a better answer.
-                </span>
-                <span className={styles.photoMark}>b.</span>
-              </div>
-            </div>
-            <div className={styles.featureList}>
-              <article>
-                <MessageCircle size={23} aria-hidden="true" />
-                <div>
-                  <h3>A conversation, not a questionnaire.</h3>
-                  <p>
-                    Let people type their answers in a familiar chat. One
-                    question at a time, with room to express themselves.
-                  </p>
-                  <a href="#demo-chat">
-                    Try the chat <MoveUpRight size={15} aria-hidden="true" />
-                  </a>
-                </div>
-              </article>
-              <article>
-                <AudioLines size={23} aria-hidden="true" />
-                <div>
-                  <h3>Some things are easier said.</h3>
-                  <p>
-                    A voice-first way to share the longer story. Less typing,
-                    more of what people really mean.
-                  </p>
-                  <span className={styles.comingSoon}>
-                    Voice forms · Coming soon
-                  </span>
-                </div>
-              </article>
-              <article>
-                <Layers2 size={23} aria-hidden="true" />
-                <div>
-                  <h3>The classic. With a little more care.</h3>
-                  <p>
-                    For the times you just need a form. Thoughtful questions, a
-                    clean layout, and a clear path to done.
-                  </p>
-                  <a href="#demo-classic">
-                    Try a classic form{" "}
-                    <MoveUpRight size={15} aria-hidden="true" />
-                  </a>
-                </div>
-              </article>
-            </div>
-          </div>
         </section>
 
         <section

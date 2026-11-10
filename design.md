@@ -49,27 +49,28 @@ The hero and filled wine buttons must use the same base wine token. Do not retur
 - Keep display headings in the same sans-serif family. No decorative serif word inserted into a headline, no new font pairing, no return to Playfair for marketing headings.
 - Hero desktop baseline: `clamp(64px, 6.7vw, 100px)`, weight `450`, line-height `1.02`, tracking `-0.065em`.
 - Section heading baseline: `clamp(34px, 3.5vw, 52px)`, weight `450`, line-height `1.12`, tracking `-0.05em`, balanced wrapping.
-- Body: generally 13–17px with relaxed line-height, constrained to a comfortable reading width. Hero description: 17px, line-height `1.7`, maximum width 340px.
+- Body: generally 13–17px with relaxed line-height, constrained to a comfortable reading width. Hero description: 17px, line-height `1.7`, maximum width 440px for the centered hero composition.
 - Use medium weights to establish hierarchy; do not make every heading bold. At narrow widths, use the existing responsive heading rules and allow natural wrapping.
 - Headings begin directly. **Do not add small labels, kickers, eyebrow text, category pills, or decorative slogans above page or section titles.** Necessary form labels and functional status text remain valid.
 
 ## Layout and geometry
 
-- Favor asymmetric two-column composition, clear hierarchy, and deliberate whitespace. Avoid a default centered headline followed by three identical feature cards.
+- Use clear hierarchy and deliberate whitespace. The landing hero centers the existing headline and supporting copy above the primary form-creation prompt; the interactive demo follows below.
 - Desktop navigation stays on one line within the existing 96px header and 1440px maximum width. Mobile header is 78px.
 - The hero is a **rounded rectangle**, never a literal square or a sharp-cornered panel. Keep its 14px desktop and 10px mobile corners.
-- Desktop hero: copy left, interactive demo right, 56px gap; 24px side gutters and a visible 24px paper margin below. At very wide widths, cap the hero at 1552px and center it.
-- Preserve the desktop viewport composition: `min-height: calc(100svh - 120px)` accounts for the 96px header and 24px lower margin. Use the existing short-viewport adjustments; do not let new content push the lower edge off a normal desktop viewport.
+- Desktop hero: centered copy and creation prompt (maximum width 720px). The wine rectangle stays `calc(100svh - 120px)` tall, with 24px side gutters and a visible 24px lower paper margin within the initial viewport. A separate light floating demo window (maximum width 1120px) overlaps its lower edge and extends onto the paper below. The demo must never stretch the wine background. At very wide widths, cap the hero at 1552px and center it.
+- The prompt drives creation; the demo demonstrates differentiation. On representative desktop viewports, show the top of the floating demo near the viewport bottom. Let the complete demo continue naturally below the fold; never clip its controls to create the partial reveal. Use short-viewport adjustments to preserve this hierarchy.
 - Mobile stacks copy and demo, uses 12px side gutters, and retains the 24px bottom margin. Allow natural page height; never compress or clip the whole mobile hero to one screen.
 - Keep demo and form surfaces level. **No rotation, tilt, skew, or perspective transforms.** The demo card radius is 12px and maximum width is 460px on desktop.
-- Center the Chat / Voice / Classic switcher horizontally beneath the demo, with 24px separation. Do not place extra text beside it.
+- Place the Chat / Voice / Classic creation-mode switcher inside the prompt textbox, alongside the submission action on desktop and naturally wrapped on mobile. It selects the requested creation mode independently from the demo. Voice creation remains clearly marked coming soon.
+- Use the three existing feature descriptions as selectable demo sections beside the demo in the floating light window. Preserve their copy and icons, show the active section, and support vertical arrow-key/Home/End tab navigation. On mobile, stack the demo and selectable descriptions without clipping.
 - Buttons use modest rounding: 7px for primary CTAs; 8px for the switcher container and 4px for its tabs. Do not turn every control into a pill.
 - Prefer whitespace and light dividers over nested bordered cards. Keep the existing restrained, wine-tinted demo shadow; do not add glows or heavy shadows everywhere.
 - Reuse the current 1100px, 760px, and 390px responsive adjustments where appropriate. Check short desktop heights as well as narrow widths.
 
 ## Copy and conversion
 
-- Primary acquisition CTA text is exactly **“Start now”**, linked to **`/new`**. Use the existing `StartLink` pattern for landing CTAs. Do not redirect visitors to sign-up before they can start building.
+- Primary acquisition CTA text is exactly **“Start now”**, linked to **`/new`**. Use the existing `StartLink` pattern for landing links; the hero prompt submits to `/new` with the entered description and requested mode. Until AI generation exists, preserve that description in the existing welcome-screen editor without claiming to generate questions. Do not redirect visitors to sign-up before they can start building.
 - Use filled wine buttons on light backgrounds and cream buttons with deep wine text on wine backgrounds. Keep the arrow, hover feedback, and clear focus state.
 - Write direct, short, human sentences. Explain what people can do or learn. Avoid hype, unsupported completion-rate claims, invented testimonials, and filler such as “elevate,” “unleash,” or “seamless.”
 - Do not restore “Find your way to ask” or “Go on. Give it a try.” Do not replace them with equivalent decorative prompts.
@@ -84,7 +85,7 @@ The hero and filled wine buttons must use the same base wine token. Do not retur
 - Preserve tab semantics, active states, arrow-key/Home/End navigation, and links that open the matching demo. All demo anchors must stay available, regardless of the active mode.
 - Use restrained ~200ms hover/press feedback. The voice waveform moves only when the preview is activated. Respect `prefers-reduced-motion`; no ambient looping decoration or scroll hijacking.
 - Use the landing motion tokens for consistent timing: 140ms press feedback, 200ms UI transitions, and 420ms one-time entrances. Keep entrances within 14px, animate only transform and opacity, and leave server-rendered content visible before JavaScript enhances it.
-- Keep the demo panel height consistent across modes. The mode indicator slides for pointer selection; keyboard selection stays immediate. Restore focus after demo completion and restart, and disable movement for reduced motion without hiding content or losing the active indicator.
+- Keep the demo panel height consistent across modes. Demo feature selection is immediate for keyboard navigation; the prompt creation-mode indicator uses the existing restrained transition. Restore focus after demo completion and restart, and disable movement for reduced motion without hiding content or losing the active indicator.
 - Preserve visible focus, semantic headings and landmarks, explicit input labels, accessible icon-button names, and the skip link. Do not rely on color alone for state. Maintain WCAG AA text contrast when extending the palette.
 
 ## Implementation rules
@@ -101,7 +102,7 @@ The hero and filled wine buttons must use the same base wine token. Do not retur
 Before completing a UI change:
 
 - Compare it with the current reference components and this document. Confirm the dark wine token, Geist direction, radii, CTA treatment, and lack of labels above headings.
-- For hero changes, check level demo edges, centered switcher, rounded corners, and visible lower paper margin on representative desktop sizes such as 1440×900 and 1366×768. Check 390px and 760px widths for natural stacking and no horizontal overflow.
+- For hero changes, check level demo edges, prompt mode controls, selectable demo descriptions, rounded corners, and visible lower paper margin on representative desktop sizes such as 1440×900 and 1366×768. Check 390px and 760px widths for natural stacking and no horizontal overflow.
 - Exercise every changed interaction with keyboard and pointer, including empty, invalid, complete, reset, and disabled states where applicable. Check reduced motion when adding movement.
 - Run changed-file ESLint and `bunx tsc --noEmit` for code changes; use `bun run build` when framework, routing, or build behavior changes.
 - Inspect rendered desktop and mobile views when browser tooling is available. Report a visual-verification limitation honestly; passing code checks does not establish visual correctness.

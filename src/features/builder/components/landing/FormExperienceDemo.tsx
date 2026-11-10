@@ -13,6 +13,7 @@ import {
   Check,
   Layers2,
   MessageCircle,
+  MoveUpRight,
   Mic,
   RotateCcw,
   Send,
@@ -23,9 +24,24 @@ import styles from "./landing.module.css";
 type Mode = "chat" | "voice" | "classic";
 type Message = { role: "question" | "answer"; text: string };
 const modes = [
-  { id: "chat", label: "Chat", icon: MessageCircle },
-  { id: "voice", label: "Voice", icon: AudioLines },
-  { id: "classic", label: "Classic", icon: Layers2 },
+  {
+    id: "chat", label: "Chat", icon: MessageCircle,
+    title: "A conversation, not a questionnaire.",
+    description: "Let people type their answers in a familiar chat. One question at a time, with room to express themselves.",
+    action: "Try the chat",
+  },
+  {
+    id: "voice", label: "Voice", icon: AudioLines,
+    title: "Some things are easier said.",
+    description: "A voice-first way to share the longer story. Less typing, more of what people really mean.",
+    action: "Voice forms · Coming soon",
+  },
+  {
+    id: "classic", label: "Classic", icon: Layers2,
+    title: "The classic. With a little more care.",
+    description: "For the times you just need a form. Thoughtful questions, a clean layout, and a clear path to done.",
+    action: "Try a classic form",
+  },
 ] as const;
 const firstQuestion =
   "Hi there. Let’s make something people love. What’s your name?";
@@ -292,8 +308,8 @@ export function FormExperienceDemo() {
     index: number,
   ) {
     let next: number;
-    if (event.key === "ArrowRight") next = (index + 1) % modes.length;
-    else if (event.key === "ArrowLeft")
+    if (event.key === "ArrowRight" || event.key === "ArrowDown") next = (index + 1) % modes.length;
+    else if (event.key === "ArrowLeft" || event.key === "ArrowUp")
       next = (index + modes.length - 1) % modes.length;
     else if (event.key === "Home") next = 0;
     else if (event.key === "End") next = modes.length - 1;
@@ -315,58 +331,65 @@ export function FormExperienceDemo() {
           aria-hidden="true"
         />
       ))}
-      <div className={styles.demoCard}>
-        <header className={styles.demoHeader}>
-          <span className={styles.demoStudio}>THE GOOD STUDIO</span>
-          <span className={styles.demoSample}>A little introduction</span>
-        </header>
+      <div className={styles.demoWindow}>
         <div
-          className={styles.demoPanel}
-          id="form-demo-panel"
-          role="tabpanel"
-          aria-labelledby={`tab-${mode}`}
-          tabIndex={0}
-        >
-          <div key={mode} className={styles.demoContent}>
-            {mode === "chat" ? (
-              <ChatDemo />
-            ) : mode === "voice" ? (
-              <VoiceDemo />
-            ) : (
-              <ClassicDemo />
-            )}
-          </div>
-        </div>
-        <div className={styles.demoBrand}>
-          Made with <strong>byteform.</strong>
-        </div>
-      </div>
-      <div className={styles.demoControls}>
-        <div
-          className={styles.modeTabs}
-          data-mode={mode}
+          className={styles.demoChoices}
           role="tablist"
           aria-label="Try a form experience"
+          aria-orientation="vertical"
         >
-          {modes.map(({ id, label, icon: Icon }, index) => (
+          {modes.map(({ id, label, icon: Icon, title, description, action }, index) => (
             <button
               key={id}
-              ref={(element) => {
-                tabRefs.current[index] = element;
-              }}
+              type="button"
+              ref={(element) => { tabRefs.current[index] = element; }}
               role="tab"
               id={`tab-${id}`}
+              aria-label={label}
               aria-controls="form-demo-panel"
               aria-selected={mode === id}
               tabIndex={mode === id ? 0 : -1}
               onClick={(event) => selectMode(id, event.detail > 0)}
               onKeyDown={(event) => navigateTabs(event, index)}
-              className={mode === id ? styles.activeTab : ""}
+              className={styles.demoChoice}
             >
-              <Icon size={16} aria-hidden="true" />
-              {label}
+              <Icon size={23} aria-hidden="true" />
+              <span>
+                <span className={styles.demoChoiceTitle}>{title}</span>
+                <span className={styles.demoChoiceDescription}>{description}</span>
+                <span className={styles.demoChoiceAction}>
+                  {action}
+                  {id !== "voice" && <MoveUpRight size={15} aria-hidden="true" />}
+                </span>
+              </span>
             </button>
           ))}
+        </div>
+        <div className={styles.demoCard}>
+          <header className={styles.demoHeader}>
+            <span className={styles.demoStudio}>THE GOOD STUDIO</span>
+            <span className={styles.demoSample}>A little introduction</span>
+          </header>
+          <div
+            className={styles.demoPanel}
+            id="form-demo-panel"
+            role="tabpanel"
+            aria-labelledby={`tab-${mode}`}
+            tabIndex={0}
+          >
+            <div key={mode} className={styles.demoContent}>
+              {mode === "chat" ? (
+                <ChatDemo />
+              ) : mode === "voice" ? (
+                <VoiceDemo />
+              ) : (
+                <ClassicDemo />
+              )}
+            </div>
+          </div>
+          <div className={styles.demoBrand}>
+            Made with <strong>byteform.</strong>
+          </div>
         </div>
       </div>
     </div>
