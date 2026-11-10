@@ -150,9 +150,15 @@ interface GuestBuilderShellProps {
    * h-screen so it fills whatever container it lives in.
    */
   embedded?: boolean;
+  initialDescription?: string;
+  requestedMode?: "chat" | "classic";
 }
 
-export function GuestBuilderShell({ embedded = false }: GuestBuilderShellProps) {
+export function GuestBuilderShell({
+  embedded = false,
+  initialDescription = "",
+  requestedMode,
+}: GuestBuilderShellProps) {
   const builder = useFormBuilder();
   const {
     form,
@@ -171,7 +177,9 @@ export function GuestBuilderShell({ embedded = false }: GuestBuilderShellProps) 
     updateFormTitle,
   } = builder;
 
-  const [rightTab, setRightTab] = useState<"editor" | "settings">("settings");
+  const [rightTab, setRightTab] = useState<"editor" | "settings">(
+    initialDescription ? "editor" : "settings",
+  );
   const [showModal, setShowModal] = useState(false);
   const [hydrated, setHydrated] = useState(false);
 
@@ -188,6 +196,11 @@ export function GuestBuilderShell({ embedded = false }: GuestBuilderShellProps) 
     } catch {
       // Corrupted storage — ignore
     }
+    // Carry the landing brief into the existing builder without generating questions.
+    if (initialDescription) {
+      builder.updateWelcomeScreen({ description: initialDescription });
+      builder.setEditingScreen("welcome");
+    }
     setHydrated(true);
   }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
@@ -203,6 +216,7 @@ export function GuestBuilderShell({ embedded = false }: GuestBuilderShellProps) 
       localStorage.setItem(
         STORAGE_KEY,
         JSON.stringify({
+          requestedMode,
           title: form.title,
           questions: form.questions,
           welcomeScreen: form.welcomeScreen,
@@ -212,7 +226,7 @@ export function GuestBuilderShell({ embedded = false }: GuestBuilderShellProps) 
     } catch {
       // Quota exceeded — ignore
     }
-  }, [form.title, form.questions, form.welcomeScreen, form.thankYouScreen, hydrated]);
+  }, [form.title, form.questions, form.welcomeScreen, form.thankYouScreen, hydrated, requestedMode]);
 
   // ── Panel selection helpers ────────────────────────────────────────────
   const selectQuestion = useCallback(
@@ -488,6 +502,11 @@ export function GuestBuilderShell({ embedded = false }: GuestBuilderShellProps) 
           </div>
 
           <div style={{ flex: 1, overflowY: "auto", padding: 16 }}>
+            {requestedMode && (
+              <p className="mb-4 text-xs text-[var(--color-fg-muted)]" role="status">
+                Requested mode: {requestedMode === "chat" ? "Chat" : "Classic"}
+              </p>
+            )}
             {rightTab === "editor" && (
               <>
                 {editingScreen === "welcome" && (

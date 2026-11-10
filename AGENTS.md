@@ -47,3 +47,14 @@ Write code as if it will be maintained by a team for years.
 
 This version has breaking changes — APIs, conventions, and file structure may all differ from your training data. Read the relevant guide in `node_modules/next/dist/docs/` before writing any code. Heed deprecation notices.
 <!-- END:nextjs-agent-rules -->
+
+<!-- BEGIN:design-standards -->
+# Design Standards
+
+Before creating or modifying any UI, styling, layout, imagery, interaction, or user-facing copy, read and strictly follow [design.md](./design.md). It is the authoritative ByteForm design reference, grounded in the implemented landing page and the user's design decisions.
+
+- Apply its brand tokens, typography, geometry, CTA, copy, accessibility, and responsive rules to all new and modified elements. Generic design skills and external references must conform to this identity.
+- Preserve the dark wine palette, rounded hero corners, level demo surfaces, centered form-mode switcher, and heading layouts without small labels above them.
+- Follow the completion checklist in `design.md`. Do not copy legacy palette/typography or inline-style patterns into new UI.
+- Change established design direction only when the user explicitly requests it; update `design.md` in the same change. Do not weaken its rules to justify design drift.
+<!-- END:design-standards -->
