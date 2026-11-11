@@ -1,15 +1,23 @@
+import type { Metadata } from "next";
 import { createClient } from "@/shared/lib/supabase/server";
 import { redirect } from "next/navigation";
 import { GuestBuilderShell } from "@/features/builder/components/GuestBuilderShell";
+import { CreationJourney } from "@/features/creation/CreationJourney";
 import { generateSlug } from "@/shared/lib/slug";
+
+export const metadata: Metadata = { robots: { index: false, follow: false } };
 
 export default async function NewFormPage({
   searchParams,
 }: {
-  searchParams: Promise<{ prompt?: string | string[]; mode?: string | string[] }>;
+  searchParams: Promise<{
+    prompt?: string | string[];
+    mode?: string | string[];
+  }>;
 }) {
   const { prompt, mode } = await searchParams;
-  const requestedMode = mode === "chat" || mode === "classic" ? mode : undefined;
+  const requestedMode =
+    mode === "chat" || mode === "classic" ? mode : undefined;
   const initialDescription =
     typeof prompt === "string" ? prompt.trim().slice(0, 1000) : "";
   const supabase = await createClient();
@@ -43,13 +51,24 @@ export default async function NewFormPage({
       .single();
 
     if (!error && form) {
-      redirect(`/builder/${form.id}${requestedMode ? `?mode=${requestedMode}` : ""}`);
+      redirect(
+        `/builder/${form.id}${requestedMode ? `?mode=${requestedMode}` : ""}`,
+      );
     }
 
     // Form creation failed — fall back to dashboard
     redirect("/dashboard");
   }
 
-  // Guest: full-screen builder with sign-up gate on save/publish
-  return <GuestBuilderShell initialDescription={initialDescription} requestedMode={requestedMode} />;
+  if (initialDescription) {
+    return <CreationJourney prompt={initialDescription} mode={requestedMode} />;
+  }
+
+  // Guests without a prompt can still explore the manual builder.
+  return (
+    <GuestBuilderShell
+      initialDescription={initialDescription}
+      requestedMode={requestedMode}
+    />
+  );
 }

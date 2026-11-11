@@ -1,6 +1,7 @@
-import Image from "next/image";
 import Link from "next/link";
-import { Geist } from "next/font/google";
+import { brandFont } from "@/shared/styles/fonts";
+import { BrandLink } from "@/shared/components/site/BrandLink";
+import { StartLink as SharedStartLink } from "@/shared/components/site/StartLink";
 import {
   ArrowRight,
   Check,
@@ -11,40 +12,29 @@ import { FormExperienceDemo } from "./landing/FormExperienceDemo";
 import { CreationPrompt } from "./landing/CreationPrompt";
 import { LandingMotion } from "./landing/LandingMotion";
 import styles from "./landing/landing.module.css";
-
-const geist = Geist({ subsets: ["latin"], variable: "--font-landing" });
+import { PricingSection } from "@/features/pricing/PricingSection";
+import { SectionLink } from "./landing/SectionLink";
 
 function StartLink({ light = false }: { light?: boolean }) {
-  return (
-    <Link
-      href="/new"
-      className={`${styles.cta} ${light ? styles.ctaLight : ""}`}
-    >
-      Start now <ArrowRight size={18} aria-hidden="true" />
-    </Link>
-  );
+  return <SharedStartLink light={light} className={`${styles.cta} ${light ? styles.ctaLight : ""}`} />;
 }
 
 function Brand() {
-  return (
-    <Link href="/" className={styles.brand} aria-label="ByteForm home">
-      <Image src="/logo-icon.svg" width={30} height={30} alt="" />
-      byteform<span className={styles.brandPeriod}>.</span>
-    </Link>
-  );
+  return <BrandLink className={styles.brand} />;
 }
 
 export function GuestHomePage({ posts }: { posts: PostMeta[] }) {
   return (
-    <LandingMotion className={`${geist.variable} ${styles.page}`}>
-      <a href="#main-content" className={styles.skipLink}>
+    <LandingMotion className={`${brandFont.variable} ${styles.page}`}>
+      <SectionLink href="#main-content" className={styles.skipLink}>
         Skip to content
-      </a>
+      </SectionLink>
       <header className={styles.header}>
         <Brand />
         <nav className={styles.nav} aria-label="Main navigation">
-          <a href="#how-it-works">How it works</a>
-          <Link href="/blog">Journal</Link>
+          <SectionLink href="#how-it-works">How it works</SectionLink>
+          <SectionLink href="#pricing">Pricing</SectionLink>
+          {posts.length > 0 ? <SectionLink href="#journal">Journal</SectionLink> : <Link href="/blog">Journal</Link>}
         </nav>
         <div className={styles.navActions}>
           <Link href="/auth/login" className={styles.signIn}>
@@ -53,7 +43,7 @@ export function GuestHomePage({ posts }: { posts: PostMeta[] }) {
           <StartLink />
         </div>
       </header>
-      <main id="main-content">
+      <main id="main-content" tabIndex={-1}>
         <section className={styles.hero} aria-labelledby="hero-title">
           <div className={styles.heroCopy}>
             <h1 id="hero-title">
@@ -68,7 +58,7 @@ export function GuestHomePage({ posts }: { posts: PostMeta[] }) {
             </p>
             <CreationPrompt />
             <p className={styles.heroNote}>
-              Build your first form. No sign-up needed.
+              Describe your form. Make it yours.
             </p>
           </div>
           <div className={styles.heroDemo}>
@@ -147,8 +137,17 @@ export function GuestHomePage({ posts }: { posts: PostMeta[] }) {
           </ol>
         </section>
 
+
+
+        <section id="pricing" className={styles.pricing} aria-labelledby="pricing-title">
+          <PricingSection />
+        </section>
+
+
+
         {posts.length > 0 && (
           <section
+            id="journal"
             className={styles.journal}
             aria-labelledby="journal-title"
             data-reveal
@@ -194,8 +193,7 @@ export function GuestHomePage({ posts }: { posts: PostMeta[] }) {
           </h2>
           <StartLink light />
           <p>
-            <Check size={14} aria-hidden="true" /> No sign-up needed to start
-            building.
+            <Check size={14} aria-hidden="true" /> Start with an idea. We’ll take it from there.
           </p>
         </section>
       </main>
@@ -203,7 +201,7 @@ export function GuestHomePage({ posts }: { posts: PostMeta[] }) {
         <Brand />
         <p>Ask well. Get closer.</p>
         <div>
-          <Link href="/blog">Journal</Link>
+          {posts.length > 0 ? <SectionLink href="#journal">Journal</SectionLink> : <Link href="/blog">Journal</Link>}
           <a href="mailto:team@getbyteform.com">Get in touch</a>
           <span>© {new Date().getFullYear()} ByteForm</span>
         </div>
