@@ -1,13 +1,10 @@
-import { createClient } from "@/shared/lib/supabase/server";
+import { getCurrentUser } from "@/shared/lib/auth/server";
 import { redirect } from "next/navigation";
 import { GuestHomePage } from "@/features/builder/components/GuestHomePage";
 import { getAllPosts } from "@/lib/blog";
 
 export default async function Home() {
-  const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
+  const user = await getCurrentUser();
 
   if (user) {
     redirect("/dashboard");

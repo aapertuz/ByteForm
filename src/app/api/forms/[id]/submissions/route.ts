@@ -1,5 +1,7 @@
+import { getOwnedForm, getVisibleForm } from "@/shared/lib/db/forms";
+import { listSubmissions, startSubmission } from "@/shared/lib/db/submissions";
 import { NextResponse } from "next/server";
-import { createClient } from "@/shared/lib/supabase/server";
+import { getCurrentUser } from "@/shared/lib/auth/server";
 import {
   submissionSchema,
   validateAnswersAgainstQuestions,
@@ -11,32 +13,20 @@ export async function GET(
   { params }: { params: Promise<{ id: string }> }
 ) {
   const { id } = await params;
-  const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
+  const user = await getCurrentUser();
 
   if (!user) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
   // Verify form ownership
-  const { data: form } = await supabase
-    .from("forms")
-    .select("id")
-    .eq("id", id)
-    .eq("user_id", user.id)
-    .single();
+  const { data: form } = await getOwnedForm(id, user.id);
 
   if (!form) {
     return NextResponse.json({ error: "Not found" }, { status: 404 });
   }
 
-  const { data: submissions, error } = await supabase
-    .from("submissions")
-    .select("*")
-    .eq("form_id", id)
-    .order("created_at", { ascending: false });
+  const { data: submissions, error } = await listSubmissions(id, user.id);
 
   if (error) {
     return NextResponse.json({ error: error.message }, { status: 500 });
@@ -50,8 +40,6 @@ export async function POST(
   { params }: { params: Promise<{ id: string }> }
 ) {
   const { id } = await params;
-  const supabase = await createClient();
-
   let raw: unknown;
   try {
     raw = await request.json();
@@ -75,13 +63,7 @@ export async function POST(
 
   if (!hasAnswers) {
     // Phase 1: Start submission
-    const { data: submissionId, error: rpcError } = await supabase.rpc(
-      "start_submission",
-      {
-        p_form_id: id,
-        p_started_at: parsed.data.startedAt ?? new Date().toISOString(),
-      }
-    );
+    const { data: submissionId, error: rpcError } = await startSubmission(id, parsed.data.startedAt ?? new Date().toISOString());
 
     if (rpcError) {
       const status = rpcError.message === "form_not_published" ? 403 : 500;
@@ -92,11 +74,7 @@ export async function POST(
   }
 
   // Legacy/Single-phase path (optional: we could deprecate this and force two-phase)
-  const { data: form, error: formError } = await supabase
-    .from("forms")
-    .select("questions, is_published")
-    .eq("id", id)
-    .single();
+  const { data: form, error: formError } = await getVisibleForm(id, null);
 
   if (formError || !form) {
     return NextResponse.json({ error: "Form not found" }, { status: 404 });
@@ -119,27 +97,11 @@ export async function POST(
   }
 
   const completedAt = new Date().toISOString();
-  const { data: submissionId, error: insertError } = await supabase.rpc(
-    "start_submission",
-    {
-      p_form_id: id,
-      p_started_at: parsed.data.startedAt ?? completedAt,
-    }
+  const { data: submissionId, error: insertError } = await startSubmission(
+    id, parsed.data.startedAt ?? completedAt, parsed.data.answers, completedAt,
   );
-
   if (insertError) {
     return NextResponse.json({ error: insertError.message }, { status: 500 });
-  }
-
-  const { error: updateError } = await supabase.rpc("update_submission", {
-    p_submission_id: submissionId,
-    p_form_id: id,
-    p_answers: parsed.data.answers,
-    p_completed_at: completedAt,
-  });
-
-  if (updateError) {
-    return NextResponse.json({ error: updateError.message }, { status: 500 });
   }
 
   return NextResponse.json({ success: true, id: submissionId }, { status: 201 });
