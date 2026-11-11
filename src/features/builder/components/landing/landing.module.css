@@ -1,10 +1,10 @@
 .page {
-  --wine: #471324;
-  --wine-deep: #330d1a;
-  --paper: #faf9f6;
-  --ink: #292426;
-  --muted: #70676a;
-  --wine-hover: #602039;
+  --wine: var(--byteform-wine);
+  --wine-deep: var(--byteform-wine-deep);
+  --paper: var(--byteform-paper);
+  --ink: var(--byteform-ink);
+  --muted: var(--byteform-muted);
+  --wine-hover: var(--byteform-wine-hover);
   --motion-fast: 140ms;
   --motion-ui: 200ms;
   --motion-enter: 420ms;
@@ -77,6 +77,7 @@
 }
 .brand {
   display: inline-flex;
+  gap: 0;
   align-items: center;
   color: var(--ink);
   font-size: 26px;
@@ -1526,3 +1527,4 @@
     margin-bottom: 14px;
   }
 }
+.pricing { padding: 110px 48px; background: var(--paper); color: var(--ink); }

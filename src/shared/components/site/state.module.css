@@ -1,0 +1,84 @@
+.content {
+  max-width: 780px;
+  min-height: 60svh;
+  margin: auto;
+  padding: 96px 24px;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  justify-content: center;
+}
+.content h1 {
+  margin: 0 0 20px;
+  font-size: clamp(36px, 5vw, 56px);
+  font-weight: 450;
+  letter-spacing: -0.055em;
+  line-height: 1.12;
+  text-wrap: balance;
+}
+.content > p {
+  max-width: 470px;
+  margin: 0;
+  color: var(--byteform-muted);
+  font-size: 16px;
+  line-height: 1.8;
+}
+.actions {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 24px;
+  margin-top: 32px;
+}
+.secondary {
+  color: var(--byteform-wine);
+  font-size: 14px;
+  text-underline-offset: 4px;
+}
+.loading {
+  min-height: 100svh;
+  display: grid;
+  align-content: center;
+  justify-items: center;
+  gap: 24px;
+  padding: 24px;
+}
+.loading p {
+  font-size: 14px;
+  color: var(--byteform-muted);
+  margin: 0;
+}
+.loadingLine {
+  height: 2px;
+  width: 120px;
+  overflow: hidden;
+  background: var(--byteform-soft);
+  border-radius: 2px;
+}
+.loadingLine::after {
+  content: "";
+  display: block;
+  height: 100%;
+  width: 50%;
+  background: var(--byteform-wine);
+  animation: progress 1s var(--byteform-ease-out) infinite;
+}
+@keyframes progress {
+  from {
+    transform: translateX(-100%);
+  }
+  to {
+    transform: translateX(200%);
+  }
+}
+@media (max-width: 760px) {
+  .content {
+    padding: 64px 24px;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .loadingLine::after {
+    animation: none;
+    transform: translateX(50%);
+  }
+}
