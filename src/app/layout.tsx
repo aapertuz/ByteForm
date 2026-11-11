@@ -1,7 +1,9 @@
 import type { Metadata } from "next";
 import { Inter, Playfair_Display } from "next/font/google";
 import "./globals.css";
+import "@/shared/styles/brand-tokens.css";
 import { PostHogProvider } from "@/shared/lib/analytics/PostHogProvider";
+import { RouteTransition } from "@/shared/components/site/RouteTransition";
 
 const inter = Inter({
   variable: "--font-sans",
@@ -23,7 +25,7 @@ export const metadata: Metadata = {
     template: "%s · ByteForm",
   },
   description:
-    "ByteForm turns data collection into something people enjoy. Conversational, beautiful, and built for completion rates that speak for themselves.",
+    "Create classic and conversational forms, share a link, and review responses in one place. Start building without signing up.",
   keywords: [
     "form builder",
     "conversational forms",
@@ -41,13 +43,13 @@ export const metadata: Metadata = {
     siteName: "ByteForm",
     title: "ByteForm — Forms your users actually want to fill",
     description:
-      "ByteForm turns data collection into something people enjoy. Conversational, beautiful, and built for completion rates that speak for themselves.",
+      "Create classic and conversational forms, share a link, and review responses in one place. Start building without signing up.",
   },
   twitter: {
     card: "summary_large_image",
     title: "ByteForm — Forms your users actually want to fill",
     description:
-      "ByteForm turns data collection into something people enjoy. Conversational, beautiful, and built for completion rates that speak for themselves.",
+      "Create classic and conversational forms, share a link, and review responses in one place. Start building without signing up.",
     creator: "@byteform",
   },
   robots: {
@@ -69,9 +71,14 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" className={`${inter.variable} ${playfair.variable} h-full antialiased`}>
+    <html
+      lang="en"
+      className={`${inter.variable} ${playfair.variable} h-full antialiased`}
+    >
       <body className="min-h-full flex flex-col font-sans">
-        <PostHogProvider>{children}</PostHogProvider>
+        <PostHogProvider>
+          <RouteTransition>{children}</RouteTransition>
+        </PostHogProvider>
       </body>
     </html>
   );

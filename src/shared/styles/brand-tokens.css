@@ -1,0 +1,15 @@
+:root {
+  --byteform-wine: #471324;
+  --byteform-wine-deep: #330d1a;
+  --byteform-wine-hover: #602039;
+  --byteform-paper: #faf9f6;
+  --byteform-ink: #292426;
+  --byteform-muted: #70676a;
+  --byteform-cream: #faf1e6;
+  --byteform-inverse: #fff8f1;
+  --byteform-inverse-muted: #ead4da;
+  --byteform-divider: #e9e4e0;
+  --byteform-soft: #eeeae5;
+  --byteform-focus: #b65f7b;
+  --byteform-ease-out: cubic-bezier(0.23, 1, 0.32, 1);
+}
