@@ -5,8 +5,9 @@ const rpc = mock(async () => ({
   error: null,
 }));
 let credential;
-mock.module("@/shared/lib/supabase/server", () => ({
-  createClient: async () => ({ rpc }),
+mock.module("@/shared/lib/db/applications", () => ({
+  submitApplication: (input) => rpc("submit_waitlist_application", input),
+  updateApplicationDetails: (input) => rpc("update_waitlist_application_details", input),
 }));
 mock.module("next/headers", () => ({
   cookies: async () => ({

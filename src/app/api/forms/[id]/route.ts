@@ -1,5 +1,6 @@
+import { getVisibleForm, getOwnedForm, updateForm, deleteForm } from "@/shared/lib/db/forms";
 import { NextResponse } from "next/server";
-import { createClient } from "@/shared/lib/supabase/server";
+import { getCurrentUser } from "@/shared/lib/auth/server";
 import { updateFormSchema } from "@/shared/lib/validation/forms";
 import { captureServerEvent } from "@/shared/lib/analytics/posthog-server";
 import { AnalyticsEvent } from "@/shared/lib/analytics/events";
@@ -9,16 +10,11 @@ export async function GET(
   { params }: { params: Promise<{ id: string }> }
 ) {
   const { id } = await params;
-  const supabase = await createClient();
 
-  const { data, error } = await supabase
-    .from("forms")
-    .select("*")
-    .eq("id", id)
-    .single();
+  const { data, error } = await getVisibleForm(id, (await getCurrentUser())?.id ?? null);
 
-  if (error) {
-    return NextResponse.json({ error: error.message }, { status: 404 });
+  if (error || !data) {
+    return NextResponse.json({ error: "Not found" }, { status: 404 });
   }
 
   return NextResponse.json(data);
@@ -29,10 +25,7 @@ export async function PUT(
   { params }: { params: Promise<{ id: string }> }
 ) {
   const { id } = await params;
-  const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
+  const user = await getCurrentUser();
 
   if (!user) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
@@ -68,20 +61,9 @@ export async function PUT(
 
   // Read the prior state so we can fire publish/unpublish events only on
   // actual transitions, not on every PUT that happens to include the flag.
-  const { data: previous } = await supabase
-    .from("forms")
-    .select("is_published")
-    .eq("id", id)
-    .eq("user_id", user.id)
-    .single();
+  const { data: previous } = await getOwnedForm(id, user.id);
 
-  const { data, error } = await supabase
-    .from("forms")
-    .update(update)
-    .eq("id", id)
-    .eq("user_id", user.id)
-    .select()
-    .single();
+  const { data, error } = await updateForm(id, user.id, update);
 
   if (error) {
     return NextResponse.json({ error: error.message }, { status: 500 });
@@ -109,20 +91,13 @@ export async function DELETE(
   { params }: { params: Promise<{ id: string }> }
 ) {
   const { id } = await params;
-  const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
+  const user = await getCurrentUser();
 
   if (!user) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
-  const { error } = await supabase
-    .from("forms")
-    .delete()
-    .eq("id", id)
-    .eq("user_id", user.id);
+  const { error } = await deleteForm(id, user.id);
 
   if (error) {
     return NextResponse.json({ error: error.message }, { status: 500 });

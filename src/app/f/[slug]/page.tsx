@@ -1,4 +1,4 @@
-import { createClient } from "@/shared/lib/supabase/server";
+import { getPublishedForm } from "@/shared/lib/db/forms";
 import { notFound } from "next/navigation";
 import { PublicFormShell } from "@/features/runtime";
 import type { Form } from "@/shared/types/form";
@@ -10,13 +10,8 @@ interface Props {
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { slug } = await params;
-  const supabase = await createClient();
 
-  const { data: dbForm } = await supabase
-    .from("forms")
-    .select("id, title, is_published")
-    .eq("slug", slug)
-    .single();
+  const { data: dbForm } = await getPublishedForm(slug);
 
   if (!dbForm || !dbForm.is_published) {
     return { robots: { index: false, follow: false } };
@@ -39,14 +34,8 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 
 export default async function PublicFormPage({ params }: Props) {
   const { slug } = await params;
-  const supabase = await createClient();
 
-  const { data: dbForm } = await supabase
-    .from("forms")
-    .select("*")
-    .eq("slug", slug)
-    .eq("is_published", true)
-    .single();
+  const { data: dbForm } = await getPublishedForm(slug);
 
   if (!dbForm) {
     notFound();

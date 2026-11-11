@@ -1,4 +1,5 @@
-import { createClient } from "@/shared/lib/supabase/server";
+import { getOwnedForm } from "@/shared/lib/db/forms";
+import { getCurrentUser } from "@/shared/lib/auth/server";
 import { redirect, notFound } from "next/navigation";
 import { SaveableFormBuilder } from "@/features/builder/components/FormBuilderShell";
 import type { Form } from "@/shared/types/form";
@@ -9,21 +10,13 @@ interface Props {
 
 export default async function EditBuilderPage({ params }: Props) {
   const { id } = await params;
-  const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
+  const user = await getCurrentUser();
 
   if (!user) {
     redirect("/auth/login");
   }
 
-  const { data: dbForm } = await supabase
-    .from("forms")
-    .select("*")
-    .eq("id", id)
-    .eq("user_id", user.id)
-    .single();
+  const { data: dbForm } = await getOwnedForm(id, user.id);
 
   if (!dbForm) {
     notFound();

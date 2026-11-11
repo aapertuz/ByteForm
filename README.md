@@ -6,8 +6,12 @@ Install dependencies and run the development server:
 
 ```bash
 bun install
+# Configure .env.local using .env.local.example first.
+bun run db:migrate
 bun dev
 ```
+
+Application data is stored in Neon. See [database setup and deployment](docs/database.md). Authentication remains separate; Clerk integration is deferred.
 
 Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
 

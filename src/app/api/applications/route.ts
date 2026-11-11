@@ -1,7 +1,7 @@
 import { randomUUID } from "node:crypto";
 import { cookies } from "next/headers";
 import { NextResponse } from "next/server";
-import { createClient } from "@/shared/lib/supabase/server";
+import { submitApplication, updateApplicationDetails } from "@/shared/lib/db/applications";
 import {
   applicationDetailsSchema,
   applicationSchema,
@@ -30,10 +30,9 @@ export async function POST(request: Request) {
     );
 
   try {
-    const supabase = await createClient();
     const editToken = randomUUID();
     const application = parsed.data;
-    const { data, error } = await supabase.rpc("submit_waitlist_application", {
+    const { data, error } = await submitApplication({
       p_email: parsed.data.email,
       p_prompt:
         application.source === "pricing"
@@ -103,9 +102,7 @@ export async function PATCH(request: Request) {
     );
 
   try {
-    const supabase = await createClient();
-    const { data, error } = await supabase.rpc(
-      "update_waitlist_application_details",
+    const { data, error } = await updateApplicationDetails(
       {
         p_id: id,
         p_edit_token: token,

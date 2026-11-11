@@ -1,5 +1,6 @@
+import { insertForm } from "@/shared/lib/db/forms";
 import type { Metadata } from "next";
-import { createClient } from "@/shared/lib/supabase/server";
+import { getCurrentUser } from "@/shared/lib/auth/server";
 import { redirect } from "next/navigation";
 import { GuestBuilderShell } from "@/features/builder/components/GuestBuilderShell";
 import { CreationJourney } from "@/features/creation/CreationJourney";
@@ -20,17 +21,12 @@ export default async function NewFormPage({
     mode === "chat" || mode === "classic" ? mode : undefined;
   const initialDescription =
     typeof prompt === "string" ? prompt.trim().slice(0, 1000) : "";
-  const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
+  const user = await getCurrentUser();
 
   if (user) {
     // Logged-in: create a blank form in their account and go straight to it
     const title = "Untitled Form";
-    const { data: form, error } = await supabase
-      .from("forms")
-      .insert({
+    const { data: form, error } = await insertForm({
         user_id: user.id,
         title,
         slug: generateSlug(title),
@@ -46,9 +42,7 @@ export default async function NewFormPage({
           description: "Your response has been recorded.",
         },
         questions: [],
-      })
-      .select()
-      .single();
+      });
 
     if (!error && form) {
       redirect(

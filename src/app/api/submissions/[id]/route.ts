@@ -1,5 +1,6 @@
+import { updateSubmission, deleteSubmission } from "@/shared/lib/db/submissions";
 import { NextResponse } from "next/server";
-import { createClient } from "@/shared/lib/supabase/server";
+import { getCurrentUser } from "@/shared/lib/auth/server";
 import { submissionSchema } from "@/shared/lib/validation/forms";
 
 const RPC_ERROR_STATUS: Record<string, number> = {
@@ -13,8 +14,6 @@ export async function PATCH(
   { params }: { params: Promise<{ id: string }> }
 ) {
   const { id: submissionId } = await params;
-  const supabase = await createClient();
-
   let raw: unknown;
   try {
     raw = await request.json();
@@ -34,18 +33,10 @@ export async function PATCH(
     return NextResponse.json({ error: "formId is required" }, { status: 400 });
   }
 
-  // Direct SELECT on submissions is blocked by RLS for anonymous respondents,
-  // so we delegate validation (existence, form match, completion) to the
-  // SECURITY DEFINER RPC and translate its raised exceptions to HTTP statuses.
-  const completedAt =
-    parsed.data.completed === true ? new Date().toISOString() : null;
-
-  const { error: rpcError } = await supabase.rpc("update_submission", {
-    p_submission_id: submissionId,
-    p_form_id: parsed.data.formId,
-    p_answers: parsed.data.answers,
-    p_completed_at: completedAt,
-  });
+  const completedAt = parsed.data.completed === true ? new Date().toISOString() : null;
+  const { error: rpcError } = await updateSubmission(
+    submissionId, parsed.data.formId, parsed.data.answers, completedAt,
+  );
 
   if (rpcError) {
     const status = RPC_ERROR_STATUS[rpcError.message] ?? 500;
@@ -60,43 +51,18 @@ export async function DELETE(
   { params }: { params: Promise<{ id: string }> }
 ) {
   const { id } = await params;
-  const supabase = await createClient();
-
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
+  const user = await getCurrentUser();
 
   if (!user) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
-  // Fetch the submission to get its parent form_id
-  const { data: submission } = await supabase
-    .from("submissions")
-    .select("form_id")
-    .eq("id", id)
-    .single();
-
-  if (!submission) {
-    return NextResponse.json({ error: "Not found" }, { status: 404 });
-  }
-
-  // Verify the parent form belongs to the authenticated user
-  const { data: form } = await supabase
-    .from("forms")
-    .select("id")
-    .eq("id", submission.form_id)
-    .eq("user_id", user.id)
-    .single();
-
-  if (!form) {
-    return NextResponse.json({ error: "Forbidden" }, { status: 403 });
-  }
-
-  const { error } = await supabase.from("submissions").delete().eq("id", id);
-
+  const { data: deleted, error } = await deleteSubmission(id, user.id);
   if (error) {
     return NextResponse.json({ error: error.message }, { status: 500 });
+  }
+  if (!deleted) {
+    return NextResponse.json({ error: "Not found" }, { status: 404 });
   }
 
   return NextResponse.json({ success: true });
